@@ -1,0 +1,457 @@
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% LaTeX Template: Project Titlepage Modified (v 0.1) by rcx
+%
+% Original Source: http://www.howtotex.com
+% Date: February 2014
+% 
+% This is a title page template which be used for articles & reports.
+% 
+% This is the modified version of the original Latex template from
+% aforementioned website.
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[12pt]{report}
+\usepackage[a4paper]{geometry}
+\usepackage[myheadings]{fullpage}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{graphicx, wrapfig, subcaption, setspace, booktabs}
+\usepackage[T1]{fontenc}
+\usepackage[font=small, labelfont=bf]{caption}
+\usepackage{fourier}
+\usepackage[protrusion=true, expansion=true]{microtype}
+\usepackage[english]{babel}
+\usepackage{sectsty}
+\usepackage{verbatim}
+\usepackage{url, lipsum}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{enumitem}
+
+
+\newcommand{\HRule}[1]{\rule{\linewidth}{#1}}
+\onehalfspacing
+\setcounter{tocdepth}{5}
+\setcounter{secnumdepth}{5}
+\graphicspath{ {images/} }
+\setlength\parindent{0pt}
+
+%-------------------------------------------------------------------------------
+% HEADER & FOOTER
+%-------------------------------------------------------------------------------
+\pagestyle{fancy}
+\fancyhf{}
+\setlength\headheight{15pt}
+\fancyhead[L]{Homework 3}
+\fancyhead[R]{CS 5785: Applied Machine Learning}
+\fancyfoot[R]{Page \thepage\ of \pageref{LastPage}}
+%-------------------------------------------------------------------------------
+% TITLE PAGE
+%-------------------------------------------------------------------------------
+
+\begin{document}
+
+
+\title{ \normalsize \textsc{CS 5785: Applied Machine Learning}
+        \\ [2.0cm]
+        \HRule{0.5pt} \\
+        \LARGE \textbf{\uppercase{Homework 3}}
+        \HRule{2pt} \\ [0.5cm]
+        \normalsize \today \vspace*{5\baselineskip}}
+
+\date{}
+
+\author{
+        Sarah Le Cam - sdl83 \\ 
+        Yunie Mao - ym224 \\ \\
+        Cornell Tech }
+
+\maketitle
+\tableofcontents
+\newpage
+
+%-------------------------------------------------------------------------------
+% Section title formatting
+\sectionfont{\scshape}
+%-------------------------------------------------------------------------------
+
+%-------------------------------------------------------------------------------
+% BODY
+%-------------------------------------------------------------------------------
+% TODO
+\section*{Sentiment Analysis for Online Reviews}
+\addcontentsline{toc}{section}{Sentiment Analysis for Online Reviews}
+
+\subsection*{Question 1 (a)}
+\addcontentsline{toc}{subsection}{Question 1 (a)}
+% TODO
+We imported Numpy to parse each file and generated the training data and labels. The labels are balanced across the three files. In total, there are 1500 negative and 1500 positive labels. 
+
+
+\subsection*{Question 1 (b)}
+\addcontentsline{toc}{subsection}{Question 1 (b)}
+% TODO
+Since the dataset consist of online reviews that may contain noises and garbage, we performed the following transformations on the original dataset. 
+Transformed all words into lowercase
+This makes it easier to find the set of matching words in dataset
+Stripped all punctuations
+Punctuations are noises that disrupts the word matching and should be removed from the dataset
+Stripped all stopwords such as ?and?, ?or? and ?the?
+Stopwords add minimal value and disrupt the word matching 
+Lemmatized all words to convert plural nouns to singular, past tenses to present and comparative and superlative tenses to positive.	 
+Imported WordNetLemmatizer from the nltk.stem module to lemmatize words in each sentence in the data
+This helps to generalize the words which improves the matching accuracy
+
+
+\begin{comment}
+\begin{figure}[h]
+\centering
+\begin{subfigure}{.5\textwidth}
+\centering
+\includegraphics[width=\linewidth]{training_image.png}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+\centering
+\includegraphics[width=\linewidth]{test_image.png}
+\end{subfigure}
+\end{figure}
+\end{comment}
+
+\subsection*{Question 1 (c)}
+\addcontentsline{toc}{subsection}{Question 1 (c)}
+% TODO
+For each file, we split the data into training and testing set by taking the first 400 positive and negative samples as the training data and the remainder as the testing data. In total, our training set contained 1200 positive samples and 1200 negative samples. Our testing set contained 300 positive samples and 300 negative samples.	 
+
+\begin{comment}
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.5\linewidth]{average_image.png}
+\end{figure}
+\end{comment}
+
+
+\subsection*{Question 1 (d)}
+\addcontentsline{toc}{subsection}{Question 1 (d)}
+% TODO
+To extract features, we used the training set to built a dictionary of all unique words in the reviews. We did not use the testing set because using it to select features could lead to overfitting of data. Using our dictionary, we built a feature vector for each review in the training data, with its ith index as the occurrences of the ith dictionary word in the review. We then added each feature vector to a training feature matrix. We also created a testing feature matrix using the same method performed for the training feature. 
+In total, there are 4356 features represented by the feature vector. We randomly chose two reviews from the training set and reported their feature vectors.
+?wow love place? ? [1,1,1,0,0,...]
+?crust not good? ? [0,0,0,1,1,1,0,...]
+
+
+\begin{comment}
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.65\linewidth]{original_and_adjusted_images.png}
+\end{figure}
+\end{comment}
+
+\subsection*{Question 1 (e)}
+\addcontentsline{toc}{subsection}{Question 1 (e)}
+% TODO
+Because majority of the English words do not appear in the reviews, most of the feature vector elements will be 0. In addition, the sentences are not of the same length, long sentences will yield higher frequencies of certain words. In order to handle the huge variance and to reduce the influence of the high frequency words in the feature vector, we applied l2 normalization as the postprocessing strategy. Since l2 minimizes sum of the square of the differences between the target value and the estimate values, applying l2 adjusts our model to handle sparsity of our feature vectors and provides us a much more stable solution.
+
+\begin{comment}
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.5\linewidth]{first_ten_eigenfaces.png}
+\end{figure}
+\end{comment}
+
+\subsection*{Question 1 (f)}
+\addcontentsline{toc}{subsection}{Question 1 (f)}
+% TODO
+To perform sentiment predictions, we trained a logistic regression model on the training data and fitted it on the testing data using Scikit-learn?s Logistic Regression package. We reported the classification accuracy score and plotted the confusion matrix. Based on the weight vector of our model, we displayed the top 10 words that play the most important roles in deciding the sentiment of the reviews. In addition, we trained a Multinomial Naive Bayes classifier using Scikit-learn?s built-in package and performed a similar analysis. Here, we compare the performance of the Logistic Regression to that of the Multinomial Naive Bayes in predicting sentiments.
+
+\begin{comment}
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.75\linewidth]{low_rank_approximation_err.png}
+\end{figure}
+\end{comment}
+
+
+\subsection*{Question 1 (g)}
+\addcontentsline{toc}{subsection}{Question 1 (g)}
+% TODO
+Similar to the bag of words model, we constructed a dictionary of n-grams, contiguous sequences of words with n=2. We did not perform any postprocessing to normalize the training set as we had done with the bag of words. In this case, since we are looking at sequences of 2 words, any frequent words would not necessarily be frequent sequences, so there is not a strong need to reduce the effect of these frequent words. We then performed the training and testing with Logistic Regression and the Multinomial Naive Bayes models and reported the accuracy, the confusion matrix, and the top 10 most frequent sequences of 2-grams.
+
+
+\subsection*{Question 1 (h)}
+\addcontentsline{toc}{subsection}{Question 1 (h)}
+% TODO
+Since the features in the bag of words model contain large redundancy, we implemented PCA to reduce the dimensions of the features to 10, 50 and 100 respectively. To perform PCA, we implemented the following:
+Computed the means of the feature data using np.mean
+Adjusted the feature data by subtracting its means
+Using Numpy?s linalg svd function, computed the unitary matrix V
+Computed the dot product of the feature data and the nth rank of the the conjugate transpose of V
+Using our PCA, we repeated the sentiment predictions using bag of words and n-grams to construct dictionaries and trained logistic regression and naive bayes models to fit our test data.
+
+
+\begin{comment}
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{face_recognition_classification_accuracy.png}
+\end{figure}
+\end{comment}
+
+\subsection*{Question 1 (i)}
+\addcontentsline{toc}{subsection}{Question 1 (i)}
+% TODO
+We compare the performances of bag of words, 2-gram, and PCA for bag of words by examining the classification results, accuracy scores, and the weights learned from logistic regression and naive bayes training. 
+
+In general, people tend to use same set of words when providing reviews online, regardless of the services or product provided. By examining the set of most popular words used in user reviews, we can determine whether a given review expresses positive or negative sentiment.
+
+
+\newpage
+
+
+
+\section*{Clustering for Text Analysis}
+\addcontentsline{toc}{section}{Clustering for Text Analysis}
+
+\subsection*{Question 2 (a)}
+\addcontentsline{toc}{subsection}{Question 2 (a)}
+%downloaded data
+%ran k-means for k {1-20}
+% found sum of squared distances for each k
+% plotted data
+% chose value of k at elbow: 7
+
+
+% TODO
+
+\subsection*{Question 2 (b)}
+\addcontentsline{toc}{subsection}{Question 2 (b)}
+% TODO
+
+\newpage
+
+
+\section*{EM Algorithm and Implementation}
+\addcontentsline{toc}{section}{EM Algorithm and Implementation}
+
+\subsection*{Question 3 (a)}
+\addcontentsline{toc}{subsection}{Question 3 (a)}
+% TODO
+
+\subsection*{Question 3 (b)}
+\addcontentsline{toc}{subsection}{Question 3 (b)}
+% TODO
+
+\subsection*{Question 3 (c)}
+\addcontentsline{toc}{subsection}{Question 3 (c)}
+% TODO
+
+\subsection*{Question 3 (d)}
+\addcontentsline{toc}{subsection}{Question 3 (d)}
+% TODO
+
+\newpage
+
+\section*{Written Exercises}
+\addcontentsline{toc}{section}{Written Exercises}
+
+
+\subsection*{Question 1}
+\addcontentsline{toc}{subsection}{Question 1}
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.7]{14_2_1.png}
+\includegraphics[scale=0.7]{14_2_2.png}
+\end{figure}
+
+
+\subsubsection*{Question 1 (a)}
+\addcontentsline{toc}{subsubsection}{Question 1 (a)}
+
+We are given: 
+$$g(x) = \sum_{k=1}^{K} \pi_{k} \cdot  g_{k}(x)$$
+
+Therefore, for each data point $x_{i}$:
+$$g(x_{i}) = \sum_{k=1}^{K} \pi_{k} \cdot g_{k}(x_{i})$$
+
+Then, the likelihood of the whole dataset is:
+$$\text{likelihood} = \prod_{i=1}^{N} g(x_{i})$$
+
+\begin{equation}
+\begin{split}
+\text{Log-likelihood} & = log(\prod_{n=1}^{N} g(x_{i})) \\
+& = \sum_{i=1}^{N}log(g(x_{i})) \\
+& = \sum_{i=1}^{N}log(\sum_{k=1}^{K} \pi_{k} \cdot g_{k}(x_{i})) \\
+\end{split}
+\end{equation}
+
+
+\subsubsection*{Question 1 (b)}
+\addcontentsline{toc}{subsubsection}{Question 1 (b)}
+
+\textbf{[INITIALISATION]} First, for each cluster, take initial guesses for the values of the mean $\hat{\mu}_{k}$, the variance $\hat{\sigma}^2_{k}$, and the prior $\hat{\pi}_{k}$, $k\in\{1, 2, ..., K\}$.
+\newline
+
+\textbf{[E-STEP]} Compute the responsibility of the model, $\hat{\gamma}_{i}$, for each datapoint, $x_{i}$, $c \in \{1, 2, ..., K\}$: \\
+$$ \gamma_{i}(c) = \frac{\pi_{c} \cdot g_{c}(x_{i})}{\sum_{k=1}^{K} \pi_{k} \cdot g_{k}(x_{i})} $$
+\newline
+
+\textbf{[M-STEP]} Compute the new weighted means and variances:
+$$ \mu_{c} = \frac{ \sum_{i = 1}^{N}\gamma_{i}(c) \cdot x_{i}}{  \sum_{i = 1}^{N}\gamma_{i}(c)}$$
+$$ \sigma_{c}^2 = \frac{ \sum_{i = 1}^{N}\gamma_{i}(c) \cdot (x_{i} - \mu_{c})^2}{  \sum_{i = 1}^{N}\gamma_{i}(c)}$$
+$$ \pi_{c} = \frac{ \sum_{i = 1}^{N}\gamma_{i}(c)}{N}$$
+\newline
+
+\textbf{[REPEAT]} Repeat the E-Step and M-Step until convergence. \\
+
+
+\subsubsection*{Question 1 (c)}
+\addcontentsline{toc}{subsubsection}{Question 1 (c)}
+% TODO
+We would like to show that if $\sigma \rightarrow 0$, this EM algorithm coincides with K-Means clustering. If $ \sigma \rightarrow 0$, then, in the E-Step, the responsibility of the model will be: 
+ $$ \gamma_{i}(c) = 
+ \begin{cases}
+1, & \text{if } x_{i} \text{ is classified as } c\\  
+0, & \text{otherwise}
+\end{cases} $$
+Then, in the M-Step, the means will only be updated for the data points in a given class:
+$$ \mu_{c} = \frac{ \sum_{i = 1}^{N}\gamma_{i}(c) \cdot x_{i}}{  \sum_{i = 1}^{N}\gamma_{i}(c)} \text{  if } x_{i} \in \text{ c}$$r
+This is equivalent to the K-Means algorithm.
+\newpage
+
+\subsection*{Question 2}
+\addcontentsline{toc}{subsection}{Question 2}
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.75]{Written_Q2.png}
+\includegraphics[scale=0.75]{classical_scaling.png}
+\end{figure}
+
+
+
+
+
+
+
+% TODO
+
+\newpage
+
+\subsection*{Question 3}
+\addcontentsline{toc}{subsection}{Question 3}
+
+\subsubsection*{Question 3 (a)}
+\addcontentsline{toc}{subsubsection}{Question 3 (a)}
+% TODO
+
+\subsubsection*{Question 3 (b)}
+\addcontentsline{toc}{subsubsection}{Question 3 (b)}
+% TODO
+
+\subsubsection*{Question 3 (c)}
+\addcontentsline{toc}{subsubsection}{Question 3 (c)}
+% TODO
+
+\subsubsection*{Question 3 (d)}
+\addcontentsline{toc}{subsubsection}{Question 3 (d)}
+% TODO
+
+\newpage
+
+
+
+
+%-------------------------------------------------------------------------------
+% REFERENCES
+%-------------------------------------------------------------------------------
+% TODO
+\newpage
+\section*{Sources \& External libraries}
+\addcontentsline{toc}{section}{Sources \& External libraries}
+
+Stéfan van der Walt, S. Chris Colbert and Gaël Varoquaux. \textit{The NumPy Array: A Structure for Efficient Numerical Computation}, Computing in Science \& Engineering, 13, 22-30 (2011), DOI:10.1109/MCSE.2011.37
+\newline
+\newline
+
+John D. Hunter. \textit{Matplotlib: A 2D Graphics Environment}, Computing in Science \& Engineering, 9, 90-95 (2007), DOI:10.1109/MCSE.2007.55
+\newline
+\newline
+
+Jones E, Oliphant E, Peterson P, et al. \textit{SciPy: Open Source Scientific Tools for Python}, 2001-, \url{http://www.scipy.org/}
+\newline
+\newline
+
+Fabian Pedregosa, Gaël Varoquaux, Alexandre Gramfort, Vincent Michel, Bertrand Thirion, Olivier Grisel, Mathieu Blondel, Peter Prettenhofer, Ron Weiss, Vincent Dubourg, Jake Vanderplas, Alexandre Passos, David Cournapeau, Matthieu Brucher, Matthieu Perrot, Édouard Duchesnay. \textit{Scikit-learn: Machine Learning in Python}, Journal of Machine Learning Research, 12, 2825-2830 (2011)
+\newline
+\newline
+
+Wes McKinney. \textit{Data Structures for Statistical Computing in Python}, Proceedings of the 9th Python in Science Conference, 51-56 (2010)
+\newline
+\newline
+
+
+\end{document}
+
+%-------------------------------------------------------------------------------
+% SNIPPETS
+%-------------------------------------------------------------------------------
+
+%\begin{figure}[!ht]
+%   \centering
+%   \includegraphics[width=0.8\textwidth]{file_name}
+%   \caption{}
+%   \centering
+%   \label{label:file_name}
+%\end{figure}
+
+%\begin{figure}[!ht]
+%   \centering
+%   \includegraphics[width=0.8\textwidth]{graph}
+%   \caption{Blood pressure ranges and associated level of hypertension (American Heart Association, 2013).}
+%   \centering
+%   \label{label:graph}
+%\end{figure}
+
+%\begin{wrapfigure}{r}{0.30\textwidth}
+%   \vspace{-40pt}
+%   \begin{center}
+%       \includegraphics[width=0.29\textwidth]{file_name}
+%   \end{center}
+%   \vspace{-20pt}
+%   \caption{}
+%   \label{label:file_name}
+%\end{wrapfigure}
+
+%\begin{wrapfigure}{r}{0.45\textwidth}
+%   \begin{center}
+%       \includegraphics[width=0.29\textwidth]{manometer}
+%   \end{center}
+%   \caption{Aneroid sphygmomanometer with stethoscope (Medicalexpo, 2012).}
+%   \label{label:manometer}
+%\end{wrapfigure}
+
+%\begin{table}[!ht]\footnotesize
+%   \centering
+%   \begin{tabular}{cccccc}
+%   \toprule
+%   \multicolumn{2}{c} {Pearson's correlation test} & \multicolumn{4}{c} {Independent t-test} \\
+%   \midrule    
+%   \multicolumn{2}{c} {Gender} & \multicolumn{2}{c} {Activity level} & \multicolumn{2}{c} {Gender} \\
+%   \midrule
+%   Males & Females & 1st level & 6th level & Males & Females \\
+%   \midrule
+%   \multicolumn{2}{c} {BMI vs. SP} & \multicolumn{2}{c} {Systolic pressure} & \multicolumn{2}{c} {Systolic Pressure} \\
+%   \multicolumn{2}{c} {BMI vs. DP} & \multicolumn{2}{c} {Diastolic pressure} & \multicolumn{2}{c} {Diastolic pressure} \\
+%   \multicolumn{2}{c} {BMI vs. MAP} & \multicolumn{2}{c} {MAP} & \multicolumn{2}{c} {MAP} \\
+%   \multicolumn{2}{c} {W:H ratio vs. SP} & \multicolumn{2}{c} {BMI} & \multicolumn{2}{c} {BMI} \\
+%   \multicolumn{2}{c} {W:H ratio vs. DP} & \multicolumn{2}{c} {W:H ratio} & \multicolumn{2}{c} {W:H ratio} \\
+%   \multicolumn{2}{c} {W:H ratio vs. MAP} & \multicolumn{2}{c} {\% Body fat} & \multicolumn{2}{c} {\% Body fat} \\
+%   \multicolumn{2}{c} {} & \multicolumn{2}{c} {Height} & \multicolumn{2}{c} {Height} \\
+%   \multicolumn{2}{c} {} & \multicolumn{2}{c} {Weight} & \multicolumn{2}{c} {Weight} \\
+%   \multicolumn{2}{c} {} & \multicolumn{2}{c} {Heart rate} & \multicolumn{2}{c} {Heart rate} \\
+%   \bottomrule
+%   \end{tabular}
+%   \caption{Parameters that were analysed and related statistical test performed for current study. BMI - body mass index; SP - systolic pressure; DP - diastolic pressure; MAP - mean arterial pressure; W:H ratio - waist to hip ratio.}
+%   \label{label:tests}
+%\end{table}
