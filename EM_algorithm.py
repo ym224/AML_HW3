@@ -1,6 +1,7 @@
 import numpy as np
 import random
 import math
+from scipy.stats import multivariate_normal as mn
 from matplotlib import pyplot as plt
 from sklearn.cluster import KMeans
 from sklearn import preprocessing as pp
@@ -8,139 +9,125 @@ from sklearn import preprocessing as pp
 filename = 'faithful.dat.txt'
 def loadData():
 	data = np.loadtxt(filename, skiprows=26, dtype=np.float)
-	return data, data[:,1], data[:,2]
+	return data[:,1:]
 
 def plotData():
 	plt.figure()
 	plt.title('Old Faithful Geyser Eruption and Waiting Times')
-	plt.scatter(eruption_time, waiting_time)
+	plt.scatter(data[:,0], data[:,1])
 	plt.xlabel('Eruption Duration (min)')
 	plt.ylabel('Waiting Time (min)')
 	plt.savefig('Faithful_Eruption_Waiting_Times.png')
 
 
-def gmm(data, K):
+def gmm(K, threshold, initializer):
 	sample_size = np.shape(data)[0]
 	dim = np.shape(data)[1]
-	# initialize to k random centers
-	idx = random.sample(sample_size, dim)
-	centoid = data[idx]
 
-	mean_vec1, mean_vec2 = [], []
+	# initialize to k random centers, with k=2
+	centroids = data[random.sample(range(sample_size), dim)]
 
-	mean_vec1.append(centoids[0])
-	mean_vec2.append(centoids[1])
-
-	mu = centoid;
-	pi = np.zeros([1, K])
+	# take initial guesses for mu1, sigma1^2, mu2, sigma2^2, pi 
+	mu = centroids
 	sigma = [np.eye(dim)] * K
-
-	weight = [1/K]*K
-	resp = np.zeros(sample_size,K)
-
-	        # E - Step
-            
-            ## Vectorized implementation of e-step equation to calculate the 
-            ## membership for each of k -gaussians
-            for k in range(self.k):
-                R[:, k] = w[k] * P(mu[k], Sigma[k])
-
-            ### Likelihood computation
-            log_likelihood = np.sum(np.log(np.sum(R, axis = 1)))
-            
-            log_likelihoods.append(log_likelihood)
-            
-            ## Normalize so that the responsibility matrix is row stochastic
-            R = (R.T / np.sum(R, axis = 1)).T
-            
-            ## The number of datapoints belonging to each gaussian            
-            N_ks = np.sum(R, axis = 0)
-            
-            
-            # M Step
-            ## calculate the new mean and covariance for each gaussian by 
-            ## utilizing the new responsibilities
-            for k in range(self.k):
-                
-                ## means
-                mu[k] = 1. / N_ks[k] * np.sum(R[:, k] * X.T, axis = 1).T
-                x_mu = np.matrix(X - mu[k])
-                
-                ## covariances
-                Sigma[k] = np.array(1 / N_ks[k] * np.dot(np.multiply(x_mu.T,  R[:, k]), x_mu))
-                
-                ## and finally the probabilities
-                w[k] = 1. / n * N_ks[k]
-            # check for onvergence
-            if len(log_likelihoods) < 2 : continue
-            if np.abs(log_likelihood - log_likelihoods[-2]) < self.eps: break
-        
-        ## bind all results together
-        from collections import namedtuple
-        self.params = namedtuple('params', ['mu', 'Sigma', 'w', 'log_likelihoods', 'num_iters'])
-        self.params.mu = mu
-        self.params.Sigma = Sigma
-        self.params.w = w
-        self.params.log_likelihoods = log_likelihoods
-        self.params.num_iters = len(log_likelihoods)       
-        
-        return self.params
+	# initialize priors
+	pi = 1/K
+	
+	if initializer == 'KMeans':
+		model = KMeans(n_clusters=K)
+		model.fit(data)	
+		labels = model.labels_
+		mu[0] = (data[np.where(labels == 0)]).mean(axis=0)
+		mu[1] = (data[np.where(labels == 1)]).mean(axis=0)
+		sigma[0] = np.cov((data[np.where(labels == 0)]).T)
+		sigma[1] = np.cov((data[np.where(labels == 1)]).T)
 
 
-def predict(self, x):
-        p = lambda mu, s : np.linalg.det(s) ** - 0.5 * (2 * np.pi) **\
-                (-len(x)/2) * np.exp( -0.5 * np.dot(x - mu , \
-                        np.dot(np.linalg.inv(s) , x - mu)))
-        probs = np.array([w * p(mu, s) for mu, s, w in \
-            zip(self.params.mu, self.params.Sigma, self.params.w)])
-        return probs/np.sum(probs)
+	iterations = 0
+	log_likelihoods = []
+	mus = []
+	while True:
+		iterations += 1
+		gamma = expectation_step(sample_size, mu, sigma, pi)
+		mu, sigma, pi = maximization_step(sample_size, gamma, mu, sigma)
+		log_likelihood = calculate_log_likelihood(sample_size, mu, sigma, pi)
+		log_likelihoods.append(log_likelihood)
+		mus.append(mu)
+		if len(log_likelihoods) > 1:
+			log_likelihood_delta = log_likelihoods[-1] - log_likelihoods[-2]
+			if log_likelihood_delta < threshold:
+				break
+	return np.array(mus), iterations
+			
+
+# E-step: compute responsibilities
+def expectation_step(sample_size, mu, sigma, pi):
+	gamma = np.zeros(sample_size)
+
+	for i in range(sample_size):
+	    numerator = pi * mn.pdf(data[i], mu[1], sigma[1])
+	    denominator = (1-pi) * mn.pdf(data[i], mu[0], sigma[0]) + numerator
+	    gamma[i] = numerator/denominator
+	    gamma[i] = np.nan_to_num(gamma[i])
+	return gamma    
 
 
-def runKMeans():
-	scaler = pp.MinMaxScaler()
-    data = scaler.fit_transform(data) 
-    
-    y_pred = KMeans(n_clusters=2, random_state=150).fit_predict(data)
-    plt.figure(1)
-    plt.scatter(data[y_pred==0][:,0],data[y_pred==0][:,1],c='pink')
-    plt.scatter(data[y_pred==1][:,0],data[y_pred==1][:,1],c=u'b')
-    plt.title("K-means Clustering")
-    plt.savefig("kmeans_plot.png")
+# M-Step: compute weighted means and variances
+def maximization_step(sample_size, gamma, mu, sigma):
+	mu[0] = np.dot(1-gamma, data)/np.sum(1-gamma)
+	mu[1] = np.dot(gamma, data)/ np.sum(gamma)
+	mu = np.nan_to_num(mu)
+	sigma[0] = np.dot(1-gamma, np.square(data-mu[0]))/np.sum(1-gamma)
+	sigma[1] = np.dot(gamma, np.square(data-mu[1]))/np.sum(gamma)
+	sigma = np.nan_to_num(sigma)
+	pi = np.sum(gamma/sample_size)
+	return mu, sigma, pi
 
-# https://datasciencelab.wordpress.com/2013/12/12/clustering-with-k-means-in-python/ 
-def cluster_points(X, mu):
-    clusters  = {}
-    for x in X:
-        bestmukey = min([(i[0], np.linalg.norm(x-mu[i[0]])) \
-                    for i in enumerate(mu)], key=lambda t:t[1])[0]
-        try:
-            clusters[bestmukey].append(x)
-        except KeyError:
-            clusters[bestmukey] = [x]
-    return clusters
- 
-def update_center(mu, clusters):
-    newmu = []
-    keys = sorted(clusters.keys())
-    for k in keys:
-        newmu.append(np.mean(clusters[k], axis = 0))
-    return newmu
- 
-def has_converged(mu, oldmu):
-    return (set([tuple(a) for a in mu]) == set([tuple(a) for a in oldmu])
- 
-def find_centers(X, K):
-    # Initialize to K random centers
-    oldmu = random.sample(X, K)
-    mu = random.sample(X, K)
-    while not has_converged(mu, oldmu):
-        oldmu = mu
-        # Assign all points in X to clusters
-        clusters = cluster_points(X, mu)
-        # Reevaluate centers
-        mu = reevaluate_centers(oldmu, clusters)
-    return(mu, clusters)
+# calculate log likelihood
+def calculate_log_likelihood(sample_size, mu, sigma, pi):
+	for i in range(sample_size):
+		log_likelihood = np.sum(np.log((1-pi) * mn.pdf(data[i], mu[0], sigma[0]) + pi * mn.pdf(data[i], mu[1], sigma[1])))
+	return log_likelihood
 
-data, eruption_time, waiting_time = loadData()
+
+def plot2DTrajectories(initializer):
+	plt.figure()
+	plt.title('Old Faithful Geyser Eruption and Waiting Times')
+	plt.scatter(data[:,0], data[:,1])
+	plt.plot(mus[:,0][:,0], mus[:,0][:,1],'rv-',markersize=5, linewidth=5)
+	plt.plot(mus[:,1][:,0], mus[:,1][:,1],'mD-',markersize=5, linewidth=5)
+
+	
+	plt.xlabel('Eruption Duration (min)')
+	plt.ylabel('Waiting Time (min)')
+	plt.savefig(initializer + '_Trajectories_Faithful_Eruption_Waiting_Times.png')
+
+
+#run GMM 50 iterations with different initial parameter guesses
+def runGMM50Times(initializer):
+	tot_iters = []
+	for i in range(50):
+		mus, iterations = gmm(2, 0.001, initializer)
+		tot_iters.append(iterations)
+	return tot_iters	
+
+def plotHistogram(initializer):
+	plt.figure()
+	plt.hist(np.array(tot_iters))
+	plt.xlabel('Iterations')
+	plt.ylabel('Count of Iterations')
+	plt.title('Distribution of Iterations Until Convergence')
+	plt.savefig(initializer + '_Distribution_Iterations_Until_Convergence.png')
+
+data = loadData()
 plotData()
+mus, iterations = gmm(2, 0.001, 'Random')
+plot2DTrajectories('Random')
+tot_iters = runGMM50Times('Random')
+plotHistogram('Random')
+
+mus, iterations = gmm(2, 0.001, 'KMeans')
+plot2DTrajectories('KMeans')
+tot_iters = runGMM50Times('KMeans')
+plotHistogram('KMeans')
 
