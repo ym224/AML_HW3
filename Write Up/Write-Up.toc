@@ -11,17 +11,17 @@
 \contentsline {subsection}{Question 1 (i)}{8}
 \contentsline {section}{Clustering for Text Analysis}{10}
 \contentsline {subsection}{Question 2 (a)}{10}
-\contentsline {subsection}{Question 2 (b)}{11}
-\contentsline {section}{EM Algorithm and Implementation}{13}
-\contentsline {subsection}{Question 3 (a)}{13}
-\contentsline {subsection}{Question 3 (b)}{13}
-\contentsline {subsection}{Question 3 (c)}{14}
-\contentsline {subsection}{Question 3 (d)}{16}
-\contentsline {section}{Written Exercises}{19}
-\contentsline {subsection}{Question 1}{19}
-\contentsline {subsubsection}{Question 1 (a)}{19}
-\contentsline {subsubsection}{Question 1 (b)}{20}
-\contentsline {subsubsection}{Question 1 (c)}{21}
-\contentsline {subsection}{Question 2}{22}
-\contentsline {subsection}{Question 3}{24}
-\contentsline {section}{Sources \& External libraries}{27}
+\contentsline {subsection}{Question 2 (b)}{13}
+\contentsline {section}{EM Algorithm and Implementation}{15}
+\contentsline {subsection}{Question 3 (a)}{15}
+\contentsline {subsection}{Question 3 (b)}{15}
+\contentsline {subsection}{Question 3 (c)}{16}
+\contentsline {subsection}{Question 3 (d)}{18}
+\contentsline {section}{Written Exercises}{21}
+\contentsline {subsection}{Question 1}{21}
+\contentsline {subsubsection}{Question 1 (a)}{21}
+\contentsline {subsubsection}{Question 1 (b)}{22}
+\contentsline {subsubsection}{Question 1 (c)}{23}
+\contentsline {subsection}{Question 2}{24}
+\contentsline {subsection}{Question 3}{26}
+\contentsline {section}{Sources \& External libraries}{29}
