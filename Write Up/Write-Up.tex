@@ -29,6 +29,11 @@
 \usepackage{graphicx}
 \usepackage{listings}
 \usepackage{enumitem}
+\usepackage{float}
+\usepackage{array}
+\usepackage{adjustbox}
+\usepackage{multirow}
+\newcolumntype{L}{>{\centering\arraybackslash}m{3cm}}
 
 
 \newcommand{\HRule}[1]{\rule{\linewidth}{#1}}
@@ -80,130 +85,157 @@
 %-------------------------------------------------------------------------------
 % BODY
 %-------------------------------------------------------------------------------
-% TODO
+
 \section*{Sentiment Analysis for Online Reviews}
 \addcontentsline{toc}{section}{Sentiment Analysis for Online Reviews}
 
 \subsection*{Question 1 (a)}
 \addcontentsline{toc}{subsection}{Question 1 (a)}
-% TODO
-We imported Numpy to parse each file and generated the training data and labels. The labels are balanced across the three files. In total, there are 1500 negative and 1500 positive labels. 
+We imported NumPy to parse each file and generate the data and labels. The labels are balanced across of the three files. In each file, there are 500 negative and 500 positive labels. In total, there are 1500 negative and 1500 positive labels. 
 
 
 \subsection*{Question 1 (b)}
 \addcontentsline{toc}{subsection}{Question 1 (b)}
-% TODO
 Since the dataset consist of online reviews that may contain noises and garbage, we performed the following transformations on the original dataset. 
-Transformed all words into lowercase
-This makes it easier to find the set of matching words in dataset
-Stripped all punctuations
-Punctuations are noises that disrupts the word matching and should be removed from the dataset
-Stripped all stopwords such as ?and?, ?or? and ?the?
-Stopwords add minimal value and disrupt the word matching 
-Lemmatized all words to convert plural nouns to singular, past tenses to present and comparative and superlative tenses to positive.	 
-Imported WordNetLemmatizer from the nltk.stem module to lemmatize words in each sentence in the data
-This helps to generalize the words which improves the matching accuracy
 
+\begin{itemize}
+  \item \textbf{Transformed all words into lowercase:} This makes it easier to find the set of matching words in dataset.
+  \item  \textbf{Stripped all punctuations:} Punctuations are noises that disrupts the word matching and should be removed from the dataset.
+  \item \textbf{Stripped all stopwords such as "and", "or" and "the":} Stopwords add minimal value and disrupt the word matching.
+  \item \textbf{Lemmatized all words to convert plural nouns to singular, past tenses to present and comparative and superlative tenses to positive:} Imported WordNetLemmatizer from the nltk.stem module to lemmatize words in each sentence in the data. This helps to generalize the words which improves the matching accuracy
+\end{itemize} 
 
-\begin{comment}
-\begin{figure}[h]
-\centering
-\begin{subfigure}{.5\textwidth}
-\centering
-\includegraphics[width=\linewidth]{training_image.png}
-\end{subfigure}%
-\begin{subfigure}{.5\textwidth}
-\centering
-\includegraphics[width=\linewidth]{test_image.png}
-\end{subfigure}
-\end{figure}
-\end{comment}
 
 \subsection*{Question 1 (c)}
 \addcontentsline{toc}{subsection}{Question 1 (c)}
-% TODO
-For each file, we split the data into training and testing set by taking the first 400 positive and negative samples as the training data and the remainder as the testing data. In total, our training set contained 1200 positive samples and 1200 negative samples. Our testing set contained 300 positive samples and 300 negative samples.	 
-
-\begin{comment}
-\begin{figure}[h]
-\centering
-\includegraphics[width=0.5\linewidth]{average_image.png}
-\end{figure}
-\end{comment}
+For each file, we split the data into training and testing sets by taking the first 400 positive and negative samples as the training data and the remainder as the testing data. In total, our training set contained 1200 positive samples and 1200 negative samples. Our testing set contained 300 positive samples and 300 negative samples.
 
 
 \subsection*{Question 1 (d)}
 \addcontentsline{toc}{subsection}{Question 1 (d)}
-% TODO
-To extract features, we used the training set to built a dictionary of all unique words in the reviews. We did not use the testing set because using it to select features could lead to overfitting of data. Using our dictionary, we built a feature vector for each review in the training data, with its ith index as the occurrences of the ith dictionary word in the review. We then added each feature vector to a training feature matrix. We also created a testing feature matrix using the same method performed for the training feature. 
-In total, there are 4356 features represented by the feature vector. We randomly chose two reviews from the training set and reported their feature vectors.
-?wow love place? ? [1,1,1,0,0,...]
-?crust not good? ? [0,0,0,1,1,1,0,...]
+In order to extract features, we used the training set to build a dictionary of all unique words in the reviews. We did not use the testing set because using it to select features could lead to overfitting of data. Using our dictionary, we built a feature vector for each review in the training data, with its i\textsuperscript{th} index as the occurrences of the i\textsuperscript{th} dictionary word in the review. We then added each feature vector to a training feature matrix. We also created a testing feature matrix using the same method performed for the training feature. \\
 
-
-\begin{comment}
-\begin{figure}[h]
-\centering
-\includegraphics[width=0.65\linewidth]{original_and_adjusted_images.png}
-\end{figure}
-\end{comment}
+In total, there are 4356 features represented by the feature vector. We randomly chose two reviews from the training set and reported their feature vectors. \\
+"wow love place" $\rightarrow$ [1,1,1,0,0,...] \\ 
+"crust not good" $\rightarrow$ [0,0,0,1,1,1,0,...]
 
 \subsection*{Question 1 (e)}
 \addcontentsline{toc}{subsection}{Question 1 (e)}
-% TODO
-Because majority of the English words do not appear in the reviews, most of the feature vector elements will be 0. In addition, the sentences are not of the same length, long sentences will yield higher frequencies of certain words. In order to handle the huge variance and to reduce the influence of the high frequency words in the feature vector, we applied l2 normalization as the postprocessing strategy. Since l2 minimizes sum of the square of the differences between the target value and the estimate values, applying l2 adjusts our model to handle sparsity of our feature vectors and provides us a much more stable solution.
-
-\begin{comment}
-\begin{figure}[h]
-\centering
-\includegraphics[width=0.5\linewidth]{first_ten_eigenfaces.png}
-\end{figure}
-\end{comment}
+Because majority of all words across reviews do not appear in each individual review, most of the feature vector elements will be 0. In addition, the sentences are not of the same length; long sentences will yield higher frequencies of certain words. In order to handle the huge variance and to reduce the influence of the high frequency words in the feature vector, we applied l2 normalization as the postprocessing strategy. Since l2 minimizes sum of the square of the differences between the target value and the estimate values, applying l2 adjusts our model to handle the sparsity of our feature vectors and provides us a much more stable solution.
 
 \subsection*{Question 1 (f)}
 \addcontentsline{toc}{subsection}{Question 1 (f)}
-% TODO
 To perform sentiment predictions, we trained a logistic regression model on the training data and fitted it on the testing data using Scikit-learn?s Logistic Regression package. We reported the classification accuracy score and plotted the confusion matrix. Based on the weight vector of our model, we displayed the top 10 words that play the most important roles in deciding the sentiment of the reviews. In addition, we trained a Multinomial Naive Bayes classifier using Scikit-learn?s built-in package and performed a similar analysis. Here, we compare the performance of the Logistic Regression to that of the Multinomial Naive Bayes in predicting sentiments.
 
-\begin{comment}
-\begin{figure}[h]
-\centering
-\includegraphics[width=0.75\linewidth]{low_rank_approximation_err.png}
-\end{figure}
-\end{comment}
+\begin{center}
+\begin{tabular}{ | L | L | L | L | }
+\hline
+ Model & Accuracy Score & Confusion Matrix & Top 10 Most Significant Words \\ 
+ \hline
+ Logistic Regression & 0.806666666667 & $\begin{bmatrix}
+ 259 & 41 \\
+ 75 & 225 \\
+\end{bmatrix}
+$ & ['great', 'bad', 'love', 'excellent', 'nice', 'delicious', 'poor', 'amaze', 'best', 'fantastic'] \\
+ \hline
+ Multinomial Naive Bayes & 0.816666666667 & $\begin{bmatrix}
+ 248 & 52 \\
+ 58 & 242 \\
+\end{bmatrix}
+$ & ['thereplacement', 'desperately', 'ironically', 'drawback', 'clearly', 'support', 'pander', 'sabotage', 'tech', 'certain'] \\
+ \hline
+\end{tabular}
+\end{center}
 
+\begin{figure}[H]
+\centering
+\begin{subfigure}[b]{0.5\textwidth}
+\includegraphics[width=\linewidth]{BoW_confusion_matrix_log_reg.png}
+ \end{subfigure}
+ \hfill
+ \begin{subfigure}[b]{0.49\textwidth}
+\includegraphics[width=\linewidth]{BoW_confusion_matrix_NB.png}
+ \end{subfigure}
+\end{figure}
 
 \subsection*{Question 1 (g)}
 \addcontentsline{toc}{subsection}{Question 1 (g)}
-% TODO
 Similar to the bag of words model, we constructed a dictionary of n-grams, contiguous sequences of words with n=2. We did not perform any postprocessing to normalize the training set as we had done with the bag of words. In this case, since we are looking at sequences of 2 words, any frequent words would not necessarily be frequent sequences, so there is not a strong need to reduce the effect of these frequent words. We then performed the training and testing with Logistic Regression and the Multinomial Naive Bayes models and reported the accuracy, the confusion matrix, and the top 10 most frequent sequences of 2-grams.
+
+\begin{center}
+\begin{tabular}{ | L | L | L | L | }
+\hline
+ Model & Accuracy Score & Confusion Matrix & Top 10 Most Significant Words \\ 
+ \hline
+ Logistic Regression & 0.636666666667 & $\begin{bmatrix}
+ 271 & 29 \\
+ 189 & 111 \\
+\end{bmatrix}
+$ & ['work great', 'highly recommend', 'waste time', 'one best', 'great phone', 'great product', 'waste money', 'food good', 'really good', 'easy use'] \\
+ \hline
+ Multinomial Naive Bayes & 0.638333333333 & $\begin{bmatrix}
+ 273 & 27 \\
+ 190 & 110 \\
+\end{bmatrix}
+$ & ['get pair', 'awful muffle', 'first wear', 'wash machine', 'disbelief dish', 'really overprice', 'way fit', 'drop face', 'smell disgust', 'feel angry'] \\
+ \hline
+\end{tabular}
+\end{center}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}[b]{0.5\textwidth}
+\includegraphics[width=\linewidth]{Ngram_confusion_matrix_log_reg.png}
+ \end{subfigure}
+ \hfill
+ \begin{subfigure}[b]{0.49\textwidth}
+\includegraphics[width=\linewidth]{Ngram_confusion_matrix_NB.png}
+ \end{subfigure}
+\end{figure}
 
 
 \subsection*{Question 1 (h)}
 \addcontentsline{toc}{subsection}{Question 1 (h)}
-% TODO
 Since the features in the bag of words model contain large redundancy, we implemented PCA to reduce the dimensions of the features to 10, 50 and 100 respectively. To perform PCA, we implemented the following:
-Computed the means of the feature data using np.mean
-Adjusted the feature data by subtracting its means
-Using Numpy?s linalg svd function, computed the unitary matrix V
-Computed the dot product of the feature data and the nth rank of the the conjugate transpose of V
-Using our PCA, we repeated the sentiment predictions using bag of words and n-grams to construct dictionaries and trained logistic regression and naive bayes models to fit our test data.
+\begin{itemize}
+	\item Computed the means of the feature data using np.mean
+	\item Adjusted the feature data by subtracting its means
+	\item Using Numpy's linalg svd function, computed the unitary matrix V
+	\item Computed the dot product of the feature data and the nth rank of the the conjugate transpose of V
+\end{itemize}
 
-
-\begin{comment}
-\begin{figure}[h]
+Using our PCA, we repeated the sentiment predictions using bag of words and n-grams to construct dictionaries and trained with Logistic Regression and Naive Bayes models to fit our test data.
+\newpage
+\textbf{Bag of Words}
+\begin{figure}[H]
 \centering
-\includegraphics[width=\linewidth]{face_recognition_classification_accuracy.png}
+\includegraphics[scale=0.7]{BOW.png}
 \end{figure}
-\end{comment}
+
+\newpage
+
+\textbf{N-Gram}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.7]{N-Gram.png}
+\end{figure}
+
 
 \subsection*{Question 1 (i)}
 \addcontentsline{toc}{subsection}{Question 1 (i)}
-% TODO
-We compare the performances of bag of words, 2-gram, and PCA for bag of words by examining the classification results, accuracy scores, and the weights learned from logistic regression and naive bayes training. 
+We compared the performances of bag of words, 2-gram, and PCA for bag of words by examining the classification results, accuracy scores, and the weights learned from Logistic Regression and Naive Bayes training. \\
 
 In general, people tend to use same set of words when providing reviews online, regardless of the services or product provided. By examining the set of most popular words used in user reviews, we can determine whether a given review expresses positive or negative sentiment.
 
+\begin{center}
+\begin{tabular}{ | L | L | L | L | }
+\hline
+ Bag of Words & N-gram & PCA for Bag of Words & PCA for N-gram \\ 
+ \hline
+Best performance in terms of accuracy. It had the least number of misclassifications. The Multinomial Naive Bayes model performed slightly better than the Logistic Regression model. & Performed worse than Bag of Words. 2-gram introduced unnecessary features that added more sparsity and created biases in the training data. & Performed worse than without using PCA. PCA reduces the dimensions which ignores the less significant words. This creates biases in the features and results in higher misclassification rates. & Worst performance in terms of accuracy. Using PCA to reduce to 10, 50 and 100 dimensions produced similar poor results. In order to attain better performance, the dimensions need to be increased. \\
+ \hline
+\end{tabular}
+\end{center}
 
 \newpage
 
@@ -214,10 +246,15 @@ In general, people tend to use same set of words when providing reviews online, 
 
 \subsection*{Question 2 (a)}
 \addcontentsline{toc}{subsection}{Question 2 (a)}
-%downloaded data
-%ran k-means for k {1-20}
-% found sum of squared distances for each k
-% plotted data
+We first downloaded the science2k-doc-word.npy data using the NumPy library. We then ran K-Means for $k$ = 1, 2, ..., 20 and found the sum of the squared distances for each $k$. We plotted the sum of the sum of the squared distances vs. the values of $k$. This allowed us to use the Elbow Method to identify a good $k$. The idea of the Elbow Method is to choose a value for $k$ with a low sum of squared distances while managing complexity. The elbow represents where we start to have diminishing returns by increasing $k$. For this model, it seems that $k$ = 8 is a good value.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{kmeans_plot_a.png}
+\end{figure}
+
+
+
 % chose value of k at elbow: 7
 
 
@@ -226,6 +263,13 @@ In general, people tend to use same set of words when providing reviews online, 
 \subsection*{Question 2 (b)}
 \addcontentsline{toc}{subsection}{Question 2 (b)}
 % TODO
+We downloaded the science2k-word-doc.npy data using the NumPy library. Again, we ran K-Means for $k$ = 1, 2, ..., 20 and found the sum of the squared distances for each $k$, which we plotted. We then used the Elbow Method to identify a good $k$ and chose $k$ = 8.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{kmeans_plot_b.png}
+\end{figure}
+
 
 \newpage
 
@@ -235,19 +279,63 @@ In general, people tend to use same set of words when providing reviews online, 
 
 \subsection*{Question 3 (a)}
 \addcontentsline{toc}{subsection}{Question 3 (a)}
-% TODO
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.11]{3a_programming.jpg}
+\end{figure}
 
 \subsection*{Question 3 (b)}
 \addcontentsline{toc}{subsection}{Question 3 (b)}
-% TODO
+We downloaded the Old Faithful Geyser dataset that contained 272 samples of the geyser eruption duration and the waiting time between the eruptions. Using Numpy?s loadtxt function, we parsed the data and plotted the points on a 2-D plane.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.9]{Faithful_Eruption_Waiting_Times.png}
+\end{figure}
+
 
 \subsection*{Question 3 (c)}
 \addcontentsline{toc}{subsection}{Question 3 (c)}
-% TODO
+In order to fit all the data points using the EM algorithm, we implemented a Gaussian-Mixture Model by performing the following steps:
+\begin{itemize}
+	\item Initialized the sample mean matrix by randomly selecting 2 sets of points from the sample data. Initialized the covariance matrix to a spherical identity matrix. Initialized the priors with equal weights assigned to each cluster.
+	\item Performed the expectation step by iterating over n data sets and computing the responsibilities of all the samples.
+	\item Using the responsibilities from the expectation step, performed the maximization step by iterating over n data sets and updating the mean, covariance and prior matrices.
+	\item At each iteration, computed the log likelihood as a function of the responsibilities and kept track of the deltas between consecutive log likelihood values.
+	\item Set a threshold (0.001) for convergence and iterate until the delta of the log likelihood is smaller than that threshold value. Recorded the iteration count at the convergence step.
+\end{itemize}
+
+We plotted the 2 dimensional trajectories of the mean vectors in each of the clusters. In addition, we ran our GMM program 50 times with different randomly initialized parameters. The below plot shows the distribution of the total number of iterations needed for our algorithm to reach convergence.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.8]{Random_Trajectories_Faithful_Eruption_Waiting_Times.png}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.8]{Random_Distribution_Iterations_Until_Convergence.png}
+\end{figure}
+
 
 \subsection*{Question 3 (d)}
 \addcontentsline{toc}{subsection}{Question 3 (d)}
-% TODO
+Using Scikit-learn's KMeans clustering algorithm with K = 2, we labeled each data point to one of the two clusters. Using the maximum likelihood over the labeled data points, we initialized the mean and the covariance matrices. Similar to the procedure in 3c, we performed the expectation and maximization steps, plotted the 2-dimensional mean vectors and the distribution of the iterations until convergence. 
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.8]{KMeans_Trajectories_Faithful_Eruption_Waiting_Times.png}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.8]{KMeans_Distribution_Iterations_Until_Convergence.png}
+\end{figure}
+
+
+Comparing the performance of GMM with random initialization to the one with KMeans initialization, we find that convergence is accelerated by parameter initialization using KMeans. The histograms showed that convergence happened after only 2 iterations using KMeans initialization and after 5-7 iterations using the random initialization method. In addition, the plots showing the trajectories of the mean vectors also support the observation that KMeans initialization reduces the number of iterations for convergence.
+
 
 \newpage
 
@@ -307,7 +395,6 @@ $$ \pi_{c} = \frac{ \sum_{i = 1}^{N}\gamma_{i}(c)}{N}$$
 
 \subsubsection*{Question 1 (c)}
 \addcontentsline{toc}{subsubsection}{Question 1 (c)}
-% TODO
 We would like to show that if $\sigma \rightarrow 0$, this EM algorithm coincides with K-Means clustering. If $ \sigma \rightarrow 0$, then, in the E-Step, the responsibility of the model will be: 
  $$ \gamma_{i}(c) = 
  \begin{cases}
@@ -319,6 +406,8 @@ $$ \mu_{c} = \frac{ \sum_{i = 1}^{N}\gamma_{i}(c) \cdot x_{i}}{  \sum_{i = 1}^{N
 This is equivalent to the K-Means algorithm.
 \newpage
 
+
+
 \subsection*{Question 2}
 \addcontentsline{toc}{subsection}{Question 2}
 
@@ -328,34 +417,57 @@ This is equivalent to the K-Means algorithm.
 \includegraphics[scale=0.75]{classical_scaling.png}
 \end{figure}
 
+We have $S$, the centered inner product matrix, such that:
+$$ s_{ij}  = < x_{i} - \bar{x},  x_{j} - \bar{x} > $$
 
+Let $x_{i}$ ($i=1,\ldots ,n$) be the i\textsuperscript{th} of $n$ data point in $p$ dimensional Euclidean space such that $x_{i} = (x_{i1}, \ldots, x_{ip})$. Let $B = (x_{i} - \bar{x}, \ldots, x_{n} - \bar{x})$, the matrix of centered points. We can then denote $S = BB^T$. In order to minimize 14.100, we want to find $Z$ such that $S = ZZ^{T} \iff BB^{T} = ZZ^{T} \iff B = Z$.
 
+$$ \text{rank}(S) = \text{rank}(BB^T) = \text{rank}(B) = p $$
 
+Since $S$ is symmetric and positive semidefinite and of rank $p$, it must have $p$ non-negative eigenvalues and $n - p$ zero eigenvalues. Then $S$ can be written as it's Singular Value Decomposition:
+$$ S = V \Lambda V^T $$
+$$ \Lambda = 
+\begin{bmatrix}
+   \lambda_{1}      & 0 &  \cdots & 0\\
+    0      & \lambda_{2} & \cdots & 0 \\
+    \vdots & \vdots & \ddots & \vdots \\
+    0       & \cdots & \cdots & \lambda_{k}
+\end{bmatrix} = D_{k}^2
+$$
+$$ V = E_{k} $$
 
+\begin{equation}
+\begin{split}
+S & = V \Lambda V^T \\
+& = E_{k} D_{k}^2E_{k}^T \\
+& =  (E_{k} \cdot D_{k}) \cdot (D_{k} \cdot E_{k}^T)\\
+& =  (E_{k} \cdot D_{k}) \cdot (D_{k}^{T} \cdot E_{k}^T)\\
+& = (E_{k} \cdot D_{k}) \cdot (E_{k} \cdot D_{k})^{T} \\
+\end{split}
+\end{equation}
 
-
-% TODO
+Therefore, $ B = E_{k} \cdot D_{k} $ and the optimal solution $ Z = E_{k} \cdot D_{k} $. Hence, the solutions $z_{i}$ to the classical scaling problem are the rows of $E_{k} \cdot D_{k}$.
 
 \newpage
+
 
 \subsection*{Question 3}
 \addcontentsline{toc}{subsection}{Question 3}
 
-\subsubsection*{Question 3 (a)}
-\addcontentsline{toc}{subsubsection}{Question 3 (a)}
-% TODO
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.11]{Written_3a.jpg}
+\includegraphics[scale=0.11]{Written_3b.jpg}
+\end{figure}
 
-\subsubsection*{Question 3 (b)}
-\addcontentsline{toc}{subsubsection}{Question 3 (b)}
-% TODO
-
-\subsubsection*{Question 3 (c)}
-\addcontentsline{toc}{subsubsection}{Question 3 (c)}
-% TODO
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.11]{Written_3b_2.jpg}
+\includegraphics[scale=0.11]{Written_3c.jpg}
+\end{figure}
 
 \subsubsection*{Question 3 (d)}
-\addcontentsline{toc}{subsubsection}{Question 3 (d)}
-% TODO
+While the min-error impurity function performs well for class separation, it is unsuitable for growing a decision tree. Because it assumes that a branch split with a differing majority class is a good split, it tends to ignore cases where the misclassified samples make up a small portion of the branch size. We see this case in part (b) with feature a3, where one branch had no misclassification. In this case, the min-error function treats this as a good split and does not continue to grow the tree.
 
 \newpage
 
@@ -365,7 +477,6 @@ This is equivalent to the K-Means algorithm.
 %-------------------------------------------------------------------------------
 % REFERENCES
 %-------------------------------------------------------------------------------
-% TODO
 \newpage
 \section*{Sources \& External libraries}
 \addcontentsline{toc}{section}{Sources \& External libraries}
@@ -387,6 +498,22 @@ Fabian Pedregosa, Gaël Varoquaux, Alexandre Gramfort, Vincent Michel, Bertrand T
 \newline
 
 Wes McKinney. \textit{Data Structures for Statistical Computing in Python}, Proceedings of the 9th Python in Science Conference, 51-56 (2010)
+\newline
+\newline
+
+Kotzias et. al,. \textit{From Group to Individual Labels using Deep Features}, KDD 2015
+\newline
+\newline
+
+Hardle, W. (1991) \textit{Smoothing Techniques with Implementation in S.}, New York: Springer.
+\newline
+\newline
+
+Azzalini, A. and Bowman, A. W. (1990). \textit{A look at some data on the Old Faithful geyser}. Applied Statistics 39, 357-365.
+\newline
+\newline
+
+"Metric Multidimensional Scaling." \textit{15.2 Metric Multidimensional Scaling}, \url{sfb649.wiwi.hu-berlin.de/fedc_homepage/xplore/tutorials/mvahtmlnode99.html}.
 \newline
 \newline
 
